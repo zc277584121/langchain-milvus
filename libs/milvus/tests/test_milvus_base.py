@@ -302,6 +302,28 @@ class TestMilvusBase(ABC):
             docsearch._vector_field,
         }
 
+    def test_milvus_reconnect_dynamic_field_metadata(self) -> None:
+        """Test dynamic metadata retrieval after reconnecting to a collection."""
+        texts = ["foo", "bar", "baz"]
+        metadatas = [{"id": i} for i in range(len(texts))]
+        docsearch = self._milvus_from_texts(
+            metadatas=metadatas, enable_dynamic_field=True
+        )
+        reconnected = Milvus(
+            FakeEmbeddings(),
+            connection_args={"uri": self.TEST_URI},
+            collection_name=docsearch.collection_name,
+            drop_old=False,
+            consistency_level="Strong",
+            enable_dynamic_field=True,
+        )
+
+        output = reconnected.similarity_search("foo", k=1)
+
+        assert_docs_equal_without_pk(
+            output, [Document(page_content="foo", metadata={"id": 0})]
+        )
+
     def test_milvus_disable_dynamic_field(self) -> None:
         """Test end to end construction and disable dynamic field"""
         texts = ["foo", "bar", "baz"]
