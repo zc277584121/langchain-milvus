@@ -69,6 +69,7 @@ jobs:
       - build
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       # This permission is used for trusted publishing:
       # https://blog.pypi.org/posts/2023-04-20-introducing-trusted-publishers/
       #
