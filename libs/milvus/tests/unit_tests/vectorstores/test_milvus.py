@@ -42,6 +42,12 @@ class TestMilvusLite(TestMilvusBase):
         return super().test_milvus_enable_dynamic_field()
 
     @pytest.mark.skip(
+        reason="Milvus-Lite doesn't return unknown dynamic fields via $meta yet"
+    )
+    def test_milvus_reconnect_dynamic_field_metadata(self) -> None:
+        return super().test_milvus_reconnect_dynamic_field_metadata()
+
+    @pytest.mark.skip(
         reason="Milvus-Lite doesn't support built-in full-text search yet"
     )
     def test_milvus_builtin_bm25_function(self, enable_dynamic_field: bool) -> None:
@@ -50,3 +56,13 @@ class TestMilvusLite(TestMilvusBase):
     @pytest.mark.skip(reason="Milvus-Lite doesn't support Function as rerank input")
     def test_milvus_multi_vector_search_with_ranker(self) -> None:
         return super().test_milvus_multi_vector_search_with_ranker()
+
+    @pytest.mark.skip(
+        reason="Milvus-Lite doesn't support filtering dynamic array fields yet"
+    )
+    def test_milvus_array_field(self) -> None:
+        return super().test_milvus_array_field()
+
+    @pytest.mark.skip(reason="Milvus-Lite doesn't support FLOAT16_VECTOR yet")
+    def test_milvus_vector_field(self) -> None:
+        return super().test_milvus_vector_field()
