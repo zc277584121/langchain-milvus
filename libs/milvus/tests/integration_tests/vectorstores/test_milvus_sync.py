@@ -15,6 +15,7 @@ from typing import ClassVar, Optional
 
 import pytest
 from langchain_core.documents import Document
+from pymilvus import Function, FunctionType
 
 from langchain_milvus.function import (
     BM25BuiltInFunction,
@@ -27,6 +28,18 @@ from tests.utils import (
     assert_docs_equal_without_pk,
     fake_texts,
 )
+
+
+def _dense_only_reranker(name: str) -> Function:
+    return Function(
+        name=name,
+        function_type=FunctionType.RERANK,
+        input_field_names=[],
+        params={
+            "reranker": "weighted",
+            "weights": [1.0, 0.0],
+        },
+    )
 
 
 class TestMilvusStandalone(TestMilvusBase):
@@ -115,7 +128,11 @@ class TestMilvusStandalone(TestMilvusBase):
             vector_field=["vector", "vector_builtin"],
         )
         docsearch.add_texts(fake_texts)
-        output = docsearch.similarity_search("foo", k=1)
+        output = docsearch.similarity_search(
+            "foo",
+            k=1,
+            reranker=_dense_only_reranker("dense_only_text_embedding"),
+        )
         assert_docs_equal_without_pk(output, [Document(page_content=fake_texts[0])])
 
     @pytest.mark.requires_apikey
@@ -154,7 +171,11 @@ class TestMilvusStandalone(TestMilvusBase):
         )
 
         docsearch.add_texts(fake_texts)
-        output = docsearch.similarity_search("foo", k=1)
+        output = docsearch.similarity_search(
+            "foo",
+            k=1,
+            reranker=_dense_only_reranker("dense_only_custom_index"),
+        )
         assert_docs_equal_without_pk(output, [Document(page_content=fake_texts[0])])
 
         # Verify indexes are created correctly
